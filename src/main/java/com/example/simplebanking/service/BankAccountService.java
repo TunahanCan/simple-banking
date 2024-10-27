@@ -9,6 +9,7 @@ import com.example.simplebanking.service.strategy.PhoneBillPaymentTransactionStr
 import com.example.simplebanking.service.strategy.TransactionStrategy;
 import com.example.simplebanking.service.strategy.WithdrawalTransactionStrategy;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.internal.util.StringHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,12 +103,16 @@ public class BankAccountService {
                 .orElseThrow(() -> new IllegalArgumentException("Hesap bulunamadı."));
     }
 
+    private String findCorrectType(String value){
+        return value.substring(0 , value.length() - 6);
+    }
+
     private BankAccountDTO convertToDTO(BankAccountEntity entity) {
         List<TransactionDTO> transactionDTOs = entity.getTransactions().stream()
                 .map(transaction -> new TransactionDTO(
                         transaction.getDate(),
                         transaction.getAmount(),
-                        transaction.getClass().getSimpleName(),
+                        findCorrectType(transaction.getClass().getSimpleName()),
                         transaction.getApprovalCode(),
                         transaction.getOperator(),
                         transaction.getPhoneNumber()
